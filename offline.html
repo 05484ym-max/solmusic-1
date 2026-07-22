@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אין חיבור לאינטרנט | Sol Music</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Assistant:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --black:#0E0C0A; --gold:#C6A152; --gold-light:#E6C682; --text:#F3E9D2; }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    background: var(--black);
+    color: var(--text);
+    font-family:'Assistant', sans-serif;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:24px;
+  }
+  .box{ max-width:360px; }
+  h1{ font-family:'Playfair Display', serif; color: var(--gold-light); font-size:22px; margin-bottom:12px; }
+  p{ font-size:14px; line-height:1.6; color:#9C9184; margin-bottom:22px; }
+  button{
+    background: var(--gold); color:var(--black); border:none;
+    padding: 11px 26px; border-radius:20px; font-weight:700; font-size:14px;
+  }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>אין כרגע חיבור לאינטרנט</h1>
+    <p>נראה שאין חיבור לרשת כרגע. ברגע שהחיבור יחזור, אפשר לנסות שוב.</p>
+    <button onclick="location.reload()">נסה שוב</button>
+  </div>
+</body>
+</html>

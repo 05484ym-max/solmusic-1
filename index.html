@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sol Music</title>
+
+<!-- ========================================================= -->
+<!-- הגדרות PWA -->
+<!-- ========================================================= -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#12100E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sol Music">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --black: #0E0C0A;
+    --black-soft: #17140F;
+    --card: #1C1812;
+    --gold: #C6A152;
+    --gold-light: #E6C682;
+    --text: #F3E9D2;
+    --text-dim: #9C9184;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Assistant', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    text-align:center;
+    padding: 34px 20px 22px;
+    border-bottom: 1px solid rgba(198,161,82,0.25);
+  }
+  .logo-ring{
+    width: 62px; height: 62px;
+    border: 1.6px solid var(--gold);
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    margin: 0 auto 12px;
+  }
+  .logo-ring span{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size: 26px;
+    color: var(--gold-light);
+  }
+  header h1{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size: 24px;
+    letter-spacing: 0.5px;
+    color: var(--gold-light);
+  }
+  header p{
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* ---------- Category pills ---------- */
+  .categories{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    padding: 18px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .categories::-webkit-scrollbar{ display:none; }
+  .pill{
+    flex-shrink:0;
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1px solid rgba(198,161,82,0.4);
+    color: var(--text-dim);
+    font-size: 13.5px;
+    font-weight:600;
+    white-space: nowrap;
+    cursor:pointer;
+    background: transparent;
+    transition: all .2s;
+  }
+  .pill.active, .pill:active{
+    background: var(--gold);
+    color: var(--black);
+    border-color: var(--gold);
+  }
+
+  /* ---------- Video grid ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 4px 16px 20px;
+  }
+  .video-card{
+    background: var(--card);
+    border-radius: 12px;
+    overflow:hidden;
+    border: 1px solid rgba(198,161,82,0.15);
+    cursor:pointer;
+  }
+  .thumb-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio: 16/9;
+    background:#000;
+  }
+  .thumb-wrap img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .play-badge{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(0,0,0,0.15);
+  }
+  .play-badge svg{ width:34px; height:34px; }
+  .video-info{ padding: 10px 12px 12px; }
+  .video-title{
+    font-size: 13.5px;
+    font-weight:600;
+    line-height:1.35;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow:hidden;
+  }
+  .video-channel{
+    font-size: 11.5px;
+    color: var(--gold-light);
+    margin-top: 5px;
+  }
+
+  .empty-state{
+    text-align:center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  /* ---------- Player modal ---------- */
+  .modal{
+    position:fixed; inset:0;
+    background: rgba(0,0,0,0.92);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index: 999;
+    padding: 16px;
+  }
+  .modal.open{ display:flex; }
+  .modal-content{
+    width:100%;
+    max-width: 520px;
+  }
+  .player-frame{
+    position:relative;
+    width:100%;
+    aspect-ratio: 16/9;
+    border-radius: 10px;
+    overflow:hidden;
+    border: 1px solid rgba(198,161,82,0.4);
+  }
+  .player-frame iframe{
+    width:100%; height:100%; border:0;
+  }
+  .modal-title{
+    color: var(--text);
+    font-size: 15px;
+    font-weight:600;
+    margin-top: 14px;
+    text-align:center;
+  }
+  .modal-close{
+    display:block;
+    margin: 18px auto 0;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold-light);
+    padding: 9px 26px;
+    border-radius: 20px;
+    font-family:'Assistant', sans-serif;
+    font-weight:600;
+    font-size: 13.5px;
+  }
+
+  .loading{
+    text-align:center;
+    padding: 30px;
+    color: var(--text-dim);
+    font-size: 13.5px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-ring"><span>S</span></div>
+  <h1>Sol Music</h1>
+  <p>מוזיקה, ניגונים ותוכן מובחר</p>
+</header>
+
+<div class="categories" id="categories">
+  <button class="pill active" data-cat="all">הכל</button>
+</div>
+
+<div id="content">
+  <div class="loading">טוען תוכן...</div>
+</div>
+
+<!-- Player Modal -->
+<div class="modal" id="playerModal">
+  <div class="modal-content">
+    <div class="player-frame" id="playerFrame"></div>
+    <div class="modal-title" id="modalTitle"></div>
+    <button class="modal-close" onclick="closePlayer()">סגירה</button>
+  </div>
+</div>
+
+<script>
+  // ========================================================
+  // הגדרה - יש להחליף בכתובת ה-Apps Script שלך אחרי הפריסה
+  // ========================================================
+  const APPS_SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_URL_HERE';
+
+  const categoriesEl = document.getElementById('categories');
+  const contentEl = document.getElementById('content');
+  let currentCategory = 'all';
+
+  async function loadCategories(){
+    try{
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=categories`);
+      const cats = await res.json();
+      cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'pill';
+        btn.textContent = cat;
+        btn.dataset.cat = cat;
+        btn.onclick = () => selectCategory(cat, btn);
+        categoriesEl.appendChild(btn);
+      });
+    }catch(err){
+      console.warn('שגיאה בטעינת קטגוריות', err);
+    }
+  }
+
+  function selectCategory(cat, btnEl){
+    currentCategory = cat;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btnEl.classList.add('active');
+    loadVideos(cat);
+  }
+
+  document.querySelector('.pill[data-cat="all"]').onclick = function(){
+    selectCategory('all', this);
+  };
+
+  async function loadVideos(category){
+    contentEl.innerHTML = '<div class="loading">טוען תוכן...</div>';
+    try{
+      const url = `${APPS_SCRIPT_URL}?action=videos&category=${encodeURIComponent(category)}`;
+      const res = await fetch(url);
+      const videos = await res.json();
+
+      if(!videos.length){
+        contentEl.innerHTML = '<div class="empty-state">אין עדיין תוכן בקטגוריה הזו</div>';
+        return;
+      }
+
+      const grid = document.createElement('div');
+      grid.className = 'grid';
+      videos.forEach(v => grid.appendChild(buildCard(v)));
+      contentEl.innerHTML = '';
+      contentEl.appendChild(grid);
+    }catch(err){
+      contentEl.innerHTML = '<div class="empty-state">שגיאה בטעינת התוכן. נסי לרענן.</div>';
+      console.warn(err);
+    }
+  }
+
+  function buildCard(v){
+    const card = document.createElement('div');
+    card.className = 'video-card';
+    card.innerHTML = `
+      <div class="thumb-wrap">
+        <img src="${v.Thumbnail}" alt="${escapeHtml(v.Title)}" loading="lazy">
+        <div class="play-badge">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,0.55)" stroke="#E6C682" stroke-width="1.2"/><path d="M10 8.5L16 12L10 15.5V8.5Z" fill="#E6C682"/></svg>
+        </div>
+      </div>
+      <div class="video-info">
+        <div class="video-title">${escapeHtml(v.Title)}</div>
+        <div class="video-channel">${escapeHtml(v.ChannelName)}</div>
+      </div>
+    `;
+    card.onclick = () => openPlayer(v.VideoID, v.Title);
+    return card;
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function openPlayer(videoId, title){
+    document.getElementById('playerFrame').innerHTML =
+      `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('playerModal').classList.add('open');
+  }
+
+  function closePlayer(){
+    document.getElementById('playerFrame').innerHTML = '';
+    document.getElementById('playerModal').classList.remove('open');
+  }
+
+  loadCategories();
+  loadVideos('all');
+
+  // ========================================================
+  // רישום ה-Service Worker
+  // ========================================================
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .catch(err => console.warn('Service worker registration failed:', err));
+    });
+  }
+</script>
+
+</body>
+</html>

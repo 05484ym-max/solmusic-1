@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ניהול | Sol Music</title>
+
+<meta name="theme-color" content="#12100E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ניהול - Sol Music">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --black: #0E0C0A;
+    --card: #1C1812;
+    --gold: #C6A152;
+    --gold-light: #E6C682;
+    --text: #F3E9D2;
+    --text-dim: #9C9184;
+    --danger: #C25B4A;
+    --success: #6FA37A;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Assistant', sans-serif;
+    min-height:100vh;
+    padding-bottom: 40px;
+  }
+
+  /* ---------- Login gate ---------- */
+  #loginGate{
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column;
+    padding: 20px;
+  }
+  #loginGate h1{
+    font-family:'Playfair Display', serif;
+    color: var(--gold-light);
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  #loginGate input{
+    width: 100%;
+    max-width: 280px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(198,161,82,0.4);
+    background: var(--card);
+    color: var(--text);
+    font-size: 15px;
+    text-align:center;
+    margin-bottom: 14px;
+  }
+  #loginGate button{
+    background: var(--gold);
+    color: var(--black);
+    border:none;
+    padding: 12px 34px;
+    border-radius: 20px;
+    font-weight:700;
+    font-size: 14px;
+  }
+  #loginError{ color: var(--danger); font-size:13px; margin-top:10px; display:none; }
+
+  /* ---------- App ---------- */
+  #app{ display:none; }
+  header{
+    text-align:center;
+    padding: 24px 16px 16px;
+    border-bottom: 1px solid rgba(198,161,82,0.25);
+  }
+  header h1{
+    font-family:'Playfair Display', serif;
+    color: var(--gold-light);
+    font-size: 20px;
+  }
+
+  .tabs{
+    display:flex;
+    border-bottom: 1px solid rgba(198,161,82,0.2);
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding: 13px 6px;
+    font-size: 13px;
+    font-weight:600;
+    color: var(--text-dim);
+    cursor:pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .tab.active{
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  .tab-panel{ display:none; padding: 16px; }
+  .tab-panel.active{ display:block; }
+
+  .row-card{
+    background: var(--card);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(198,161,82,0.15);
+    display:flex;
+    gap: 12px;
+  }
+  .row-card img{
+    width: 100px;
+    height: 60px;
+    object-fit:cover;
+    border-radius: 8px;
+    flex-shrink:0;
+  }
+  .row-info{ flex:1; min-width:0; }
+  .row-title{ font-size: 13.5px; font-weight:600; line-height:1.3; }
+  .row-sub{ font-size: 11.5px; color: var(--text-dim); margin-top:4px; }
+  .row-actions{ display:flex; gap:8px; margin-top:8px; }
+  .btn-sm{
+    border:none;
+    border-radius: 14px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn-approve{ background: var(--success); color:#0E0C0A; }
+  .btn-reject{ background: var(--danger); color:#fff; }
+  .btn-remove{ background: transparent; border:1px solid var(--danger); color: var(--danger); }
+
+  .form-block{
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(198,161,82,0.15);
+  }
+  .form-block h3{ font-size:14px; color: var(--gold-light); margin-bottom:12px; }
+  .form-block input, .form-block select{
+    width:100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(198,161,82,0.3);
+    background: #0E0C0A;
+    color: var(--text);
+    font-size: 13.5px;
+    margin-bottom: 10px;
+  }
+  .form-block button{
+    width:100%;
+    background: var(--gold);
+    color: var(--black);
+    border:none;
+    padding: 11px;
+    border-radius: 10px;
+    font-weight:700;
+    font-size: 13.5px;
+  }
+
+  .fetch-btn{
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold-light);
+    padding: 12px;
+    border-radius: 10px;
+    font-weight:600;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+  }
+
+  .empty{ text-align:center; color: var(--text-dim); font-size:13.5px; padding: 30px 10px; }
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    background: var(--gold); color:var(--black);
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; font-weight:700;
+    display:none; z-index:999;
+  }
+</style>
+</head>
+<body>
+
+<div id="loginGate">
+  <h1>ניהול Sol Music</h1>
+  <input type="password" id="pwInput" placeholder="סיסמה">
+  <button onclick="login()">כניסה</button>
+  <div id="loginError">סיסמה שגויה</div>
+</div>
+
+<div id="app">
+  <header><h1>ניהול Sol Music</h1></header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="pending">ממתינים</div>
+    <div class="tab" data-tab="channels">ערוצים</div>
+    <div class="tab" data-tab="library">ספרייה</div>
+  </div>
+
+  <div class="tab-panel active" id="tab-pending">
+    <button class="fetch-btn" onclick="fetchNow()">🔄 בדוק עכשיו סרטונים חדשים מהערוצים</button>
+    <div id="pendingList"><div class="empty">טוען...</div></div>
+  </div>
+
+  <div class="tab-panel" id="tab-channels">
+    <div class="form-block">
+      <h3>הוספת ערוץ למעקב אוטומטי</h3>
+      <input type="text" id="newChannelId" placeholder="Channel ID (מתחיל ב-UC...)">
+      <input type="text" id="newChannelName" placeholder="שם הערוץ (לתצוגה)">
+      <select id="newChannelCategory"></select>
+      <button onclick="addChannel()">הוסף ערוץ</button>
+    </div>
+    <div id="channelsList"><div class="empty">טוען...</div></div>
+  </div>
+
+  <div class="tab-panel" id="tab-library">
+    <div id="libraryList"><div class="empty">טוען...</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ========================================================
+  // הגדרה - יש להחליף בכתובת ה-Apps Script שלך אחרי הפריסה
+  // ========================================================
+  const APPS_SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_URL_HERE';
+
+  let PASSWORD = sessionStorage.getItem('solmusic_pw') || '';
+
+  if(PASSWORD){ init(); }
+
+  function login(){
+    const pw = document.getElementById('pwInput').value;
+    PASSWORD = pw;
+    sessionStorage.setItem('solmusic_pw', pw);
+    init(true);
+  }
+
+  async function init(isLoginAttempt){
+    // בדיקת סיסמה מול שרת דרך בקשת pending
+    try{
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=pending&password=${encodeURIComponent(PASSWORD)}`);
+      const data = await res.json();
+      if(data.error){
+        if(isLoginAttempt){
+          document.getElementById('loginError').style.display = 'block';
+        }
+        sessionStorage.removeItem('solmusic_pw');
+        return;
+      }
+      document.getElementById('loginGate').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      renderPending(data);
+      loadCategoriesIntoSelect();
+      loadChannels();
+    }catch(err){
+      showToast('שגיאת חיבור, נסי שוב');
+    }
+  }
+
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      if(tab.dataset.tab === 'library') loadLibrary();
+    };
+  });
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2200);
+  }
+
+  // ---------- Pending ----------
+  function renderPending(list){
+    const el = document.getElementById('pendingList');
+    if(!list.length){ el.innerHTML = '<div class="empty">אין סרטונים ממתינים כרגע</div>'; return; }
+    el.innerHTML = '';
+    list.forEach(v => {
+      const div = document.createElement('div');
+      div.className = 'row-card';
+      div.innerHTML = `
+        <img src="${v.Thumbnail}">
+        <div class="row-info">
+          <div class="row-title">${escapeHtml(v.Title)}</div>
+          <div class="row-sub">${escapeHtml(v.ChannelName)} · ${escapeHtml(v.Category)}</div>
+          <div class="row-actions">
+            <button class="btn-sm btn-approve" onclick="approveVideo('${v.VideoID}')">אשר</button>
+            <button class="btn-sm btn-reject" onclick="rejectVideo('${v.VideoID}')">דחה</button>
+          </div>
+        </div>
+      `;
+      el.appendChild(div);
+    });
+  }
+
+  async function reloadPending(){
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=pending&password=${encodeURIComponent(PASSWORD)}`);
+    renderPending(await res.json());
+  }
+
+  async function approveVideo(id){
+    await postAction({ action:'approve', videoId:id });
+    showToast('אושר ✓');
+    reloadPending();
+  }
+  async function rejectVideo(id){
+    await postAction({ action:'reject', videoId:id });
+    showToast('נדחה');
+    reloadPending();
+  }
+
+  async function fetchNow(){
+    showToast('בודק סרטונים חדשים...');
+    const res = await postAction({ action:'fetchNow' });
+    showToast(`נמצאו ${res.added || 0} סרטונים חדשים`);
+    reloadPending();
+  }
+
+  // ---------- Channels ----------
+  async function loadCategoriesIntoSelect(){
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=categories`);
+    const cats = await res.json();
+    const sel = document.getElementById('newChannelCategory');
+    sel.innerHTML = cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  }
+
+  async function loadChannels(){
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=channels&password=${encodeURIComponent(PASSWORD)}`);
+    const channels = await res.json();
+    const el = document.getElementById('channelsList');
+    if(!channels.length){ el.innerHTML = '<div class="empty">עדיין לא נוספו ערוצים</div>'; return; }
+    el.innerHTML = '';
+    channels.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'row-card';
+      div.innerHTML = `
+        <div class="row-info">
+          <div class="row-title">${escapeHtml(c.ChannelName)}</div>
+          <div class="row-sub">${escapeHtml(c.Category)} · ${escapeHtml(c.ChannelID)}</div>
+          <div class="row-actions">
+            <button class="btn-sm btn-remove" onclick="removeChannel('${c.ChannelID}')">הסר ערוץ</button>
+          </div>
+        </div>
+      `;
+      el.appendChild(div);
+    });
+  }
+
+  async function addChannel(){
+    const id = document.getElementById('newChannelId').value.trim();
+    const name = document.getElementById('newChannelName').value.trim();
+    const category = document.getElementById('newChannelCategory').value;
+    if(!id || !name){ showToast('נא למלא את כל השדות'); return; }
+    await postAction({ action:'addChannel', channelId:id, channelName:name, category:category });
+    showToast('הערוץ נוסף');
+    document.getElementById('newChannelId').value = '';
+    document.getElementById('newChannelName').value = '';
+    loadChannels();
+  }
+
+  async function removeChannel(id){
+    await postAction({ action:'removeChannel', channelId:id });
+    showToast('הערוץ הוסר');
+    loadChannels();
+  }
+
+  // ---------- Library ----------
+  async function loadLibrary(){
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=approvedLibrary&password=${encodeURIComponent(PASSWORD)}`);
+    const videos = await res.json();
+    const el = document.getElementById('libraryList');
+    if(!videos.length){ el.innerHTML = '<div class="empty">אין עדיין סרטונים מאושרים</div>'; return; }
+    el.innerHTML = '';
+    videos.forEach(v => {
+      const div = document.createElement('div');
+      div.className = 'row-card';
+      div.innerHTML = `
+        <img src="${v.Thumbnail}">
+        <div class="row-info">
+          <div class="row-title">${escapeHtml(v.Title)}</div>
+          <div class="row-sub">${escapeHtml(v.ChannelName)} · ${escapeHtml(v.Category)}</div>
+          <div class="row-actions">
+            <button class="btn-sm btn-remove" onclick="removeVideo('${v.VideoID}')">הסר מהספרייה</button>
+          </div>
+        </div>
+      `;
+      el.appendChild(div);
+    });
+  }
+
+  async function removeVideo(id){
+    await postAction({ action:'removeVideo', videoId:id });
+    showToast('הוסר');
+    loadLibrary();
+  }
+
+  // ---------- Helpers ----------
+  async function postAction(payload){
+    payload.password = PASSWORD;
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    return res.json();
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+</script>
+
+</body>
+</html>
